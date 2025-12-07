@@ -91,6 +91,11 @@
                             href="/chamados/listar"
                             {{ 'aria-current=page' if '/chamados/' in request.path else '' }}>Chamados</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if '/artigos/meus' in request.path else '' }}"
+                            href="/artigos/meus"
+                            {{ 'aria-current=page' if '/artigos/meus' in request.path else '' }}>Meus Artigos</a>
+                    </li>
                     {% endif %}
                 </ul>
 

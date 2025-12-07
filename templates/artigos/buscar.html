@@ -1,0 +1,81 @@
+{% extends "base_publica.html" %}
+
+{% block titulo %}Artigos - Blog Simples{% endblock %}
+
+{% block conteudo %}
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <h1 class="mb-3">Artigos</h1>
+            <form method="get" action="/artigos/" class="mb-4">
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        class="form-control" 
+                        name="termo" 
+                        placeholder="Buscar artigos..." 
+                        value="{{ termo }}"
+                    >
+                    <button class="btn btn-primary" type="submit">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="col-lg-4">
+            <h5 class="mb-3">Categorias</h5>
+            <div class="list-group">
+                <a href="/artigos/" class="list-group-item list-group-item-action {% if not termo %}active{% endif %}">
+                    Todos os artigos
+                </a>
+                {% for categoria in categorias %}
+                    <a href="/artigos/?categoria={{ categoria.id }}" class="list-group-item list-group-item-action">
+                        {{ categoria.nome }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            {% if artigos %}
+                {% for artigo in artigos %}
+                    <article class="card mb-4">
+                        <div class="card-body">
+                            <h2 class="card-title h4">
+                                <a href="/artigos/ler/{{ artigo.id }}" class="text-decoration-none">
+                                    {{ artigo.titulo }}
+                                </a>
+                            </h2>
+                            <p class="card-text text-muted small">
+                                <i class="bi bi-person"></i> {{ artigo.usuario_nome }} | 
+                                <i class="bi bi-calendar"></i> {{ artigo.data_publicacao[:10] }} | 
+                                <i class="bi bi-eye"></i> {{ artigo.qtde_visualizacoes }} visualizações
+                            </p>
+                            {% if artigo.categoria_nome %}
+                                <p class="card-text">
+                                    <span class="badge bg-info">{{ artigo.categoria_nome }}</span>
+                                </p>
+                            {% endif %}
+                            <p class="card-text">{{ artigo.resumo or artigo.conteudo[:200] ~ '...' }}</p>
+                            <a href="/artigos/ler/{{ artigo.id }}" class="btn btn-sm btn-outline-primary">
+                                Ler mais <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-info" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    {% if termo %}
+                        Nenhum artigo encontrado com o termo "{{ termo }}". Tente outro termo de busca.
+                    {% else %}
+                        Nenhum artigo publicado ainda. Volte mais tarde!
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

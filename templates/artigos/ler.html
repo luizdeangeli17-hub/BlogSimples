@@ -1,0 +1,82 @@
+{% extends "base_publica.html" %}
+
+{% block titulo %}{{ artigo.titulo }} - Blog Simples{% endblock %}
+
+{% block conteudo %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <article>
+                <header class="mb-4 pb-4 border-bottom">
+                    <h1 class="mb-3">{{ artigo.titulo }}</h1>
+                    <p class="lead text-muted mb-0">{{ artigo.resumo }}</p>
+                </header>
+
+                <div class="article-meta mb-4 text-muted">
+                    <span>
+                        <i class="bi bi-person"></i>
+                        <strong>{{ artigo.usuario_nome }}</strong>
+                    </span>
+                    {% if artigo.data_publicacao %}
+                        <span class="ms-3">
+                            <i class="bi bi-calendar"></i>
+                            {{ artigo.data_publicacao[:10] }}
+                        </span>
+                    {% endif %}
+                    {% if artigo.categoria_nome %}
+                        <span class="ms-3">
+                            <i class="bi bi-tags"></i>
+                            <span class="badge bg-info">{{ artigo.categoria_nome }}</span>
+                        </span>
+                    {% endif %}
+                    <span class="ms-3">
+                        <i class="bi bi-eye"></i>
+                        {{ artigo.qtde_visualizacoes }} visualizações
+                    </span>
+                </div>
+
+                <div class="article-content mb-5">
+                    <div id="markdown-content">
+                        {{ artigo.conteudo }}
+                    </div>
+                </div>
+
+                <footer class="text-center pt-4 border-top">
+                    <a href="/artigos/" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left"></i> Voltar aos Artigos
+                    </a>
+                </footer>
+            </article>
+        </div>
+    </div>
+</div>
+
+<!-- Marked.js para renderizar Markdown -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<!-- Highlight.js para syntax highlighting -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/styles/atom-one-dark.min.css">
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/highlight.min.js"></script>
+
+<script>
+    // Renderizar Markdown
+    const markdownContent = document.getElementById('markdown-content').innerText;
+    const htmlContent = marked.parse(markdownContent);
+    document.getElementById('markdown-content').innerHTML = htmlContent;
+
+    // Aplicar syntax highlighting
+    document.querySelectorAll('pre code').forEach((block) => {
+        hljs.highlightElement(block);
+    });
+
+    // Adicionar classe Bootstrap às tabelas
+    document.querySelectorAll('table').forEach((table) => {
+        table.classList.add('table');
+    });
+
+    // Adicionar responsividade às imagens
+    document.querySelectorAll('img').forEach((img) => {
+        img.classList.add('img-fluid');
+    });
+</script>
+{% endblock %}

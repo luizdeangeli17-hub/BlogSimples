@@ -129,6 +129,23 @@
         <div class="card h-100 shadow-sm shadow-hover">
             <div class="card-body text-center">
                 <div class="mb-3">
+                    <i class="bi bi-pencil-square text-success display-3"></i>
+                </div>
+                <h5 class="card-title">Artigos</h5>
+                <p class="card-text text-muted">
+                    Crie, edite e publique artigos do blog
+                </p>
+                <a href="/artigos/meus" class="btn btn-success">
+                    <i class="bi bi-arrow-right-circle"></i> Acessar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="card h-100 shadow-sm shadow-hover">
+            <div class="card-body text-center">
+                <div class="mb-3">
                     <i class="bi bi-headset text-danger display-3"></i>
                 </div>
                 <h5 class="card-title">Chamados</h5>
@@ -169,6 +186,25 @@
             </div>
         </div>
     </div>
+
+    {% if usuario_logado.perfil == 'Autor' %}
+    <div class="col">
+        <div class="card h-100 shadow-sm shadow-hover">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="bi bi-pencil-square text-success display-3"></i>
+                </div>
+                <h5 class="card-title">Meus Artigos</h5>
+                <p class="card-text text-muted">
+                    Crie, edite e publique seus artigos
+                </p>
+                <a href="/artigos/meus" class="btn btn-success">
+                    <i class="bi bi-arrow-right-circle"></i> Acessar
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
     {% endif %}
 </div>
 

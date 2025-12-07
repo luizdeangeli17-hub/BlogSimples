@@ -1,0 +1,93 @@
+{% extends "base_privada.html" %}
+
+{% block titulo %}Meus Artigos{% endblock %}
+
+{% block conteudo %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-0">Meus Artigos</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="/artigos/cadastrar" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Novo Artigo
+            </a>
+        </div>
+    </div>
+
+    {% if artigos %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Título</th>
+                        <th>Status</th>
+                        <th>Visualizações</th>
+                        <th>Atualizado em</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for artigo in artigos %}
+                        <tr>
+                            <td>
+                                <strong>{{ artigo.titulo }}</strong>
+                                {% if artigo.status == 'Rascunho' %}
+                                    <span class="badge bg-secondary ms-2">Rascunho</span>
+                                {% elif artigo.status == 'Publicado' %}
+                                    <span class="badge bg-success ms-2">Publicado</span>
+                                {% elif artigo.status == 'Pausado' %}
+                                    <span class="badge bg-warning text-dark ms-2">Pausado</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if artigo.status == 'Rascunho' %}
+                                    <span class="badge bg-secondary">Rascunho</span>
+                                {% elif artigo.status == 'Publicado' %}
+                                    <span class="badge bg-success">Publicado</span>
+                                {% elif artigo.status == 'Pausado' %}
+                                    <span class="badge bg-warning text-dark">Pausado</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <i class="bi bi-eye"></i> {{ artigo.qtde_visualizacoes }}
+                            </td>
+                            <td>
+                                {{ artigo.data_atualizacao[:10] }}
+                            </td>
+                            <td class="text-end">
+                                <a href="/artigos/editar/{{ artigo.id }}" class="btn btn-sm btn-outline-primary" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                {% if artigo.status == 'Rascunho' or artigo.status == 'Pausado' %}
+                                    <form method="post" action="/artigos/publicar/{{ artigo.id }}" style="display:inline;">
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Publicar" onclick="return confirm('Publicar este artigo?')">
+                                            <i class="bi bi-upload"></i>
+                                        </button>
+                                    </form>
+                                {% elif artigo.status == 'Publicado' %}
+                                    <form method="post" action="/artigos/pausar/{{ artigo.id }}" style="display:inline;">
+                                        <button type="submit" class="btn btn-sm btn-outline-warning" title="Pausar" onclick="return confirm('Pausar este artigo?')">
+                                            <i class="bi bi-pause"></i>
+                                        </button>
+                                    </form>
+                                {% endif %}
+                                <form method="post" action="/artigos/excluir/{{ artigo.id }}" style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir" onclick="return confirm('Tem certeza que deseja excluir este artigo?')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            <i class="bi bi-info-circle"></i>
+            Você ainda não tem artigos. <a href="/artigos/cadastrar">Crie um novo artigo</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends "base_privada.html" %}
+
+{% block titulo %}Criar Novo Artigo{% endblock %}
+
+{% block conteudo %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <h1 class="mb-4">Criar Novo Artigo</h1>
+
+            <form method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="titulo" class="form-label">Título <span class="text-danger">*</span></label>
+                    <input 
+                        type="text" 
+                        class="form-control" 
+                        id="titulo" 
+                        name="titulo" 
+                        value="{{ titulo or '' }}"
+                        required
+                        minlength="3"
+                        maxlength="100"
+                        placeholder="Digite o título do artigo"
+                    >
+                    <small class="form-text text-muted">Entre 3 e 100 caracteres</small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="resumo" class="form-label">Resumo</label>
+                    <textarea 
+                        class="form-control" 
+                        id="resumo" 
+                        name="resumo" 
+                        rows="2"
+                        maxlength="300"
+                        placeholder="Resumo breve do artigo (opcional)"
+                    >{{ resumo or '' }}</textarea>
+                    <small class="form-text text-muted">Máximo 300 caracteres</small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="conteudo" class="form-label">Conteúdo <span class="text-danger">*</span></label>
+                    <textarea 
+                        class="form-control" 
+                        id="conteudo" 
+                        name="conteudo" 
+                        rows="10"
+                        required
+                        placeholder="Digite o conteúdo do artigo (suporta Markdown)"
+                    >{{ conteudo or '' }}</textarea>
+                    <small class="form-text text-muted">Suporta <a href="https://www.markdownguide.org/" target="_blank">Markdown</a></small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="categoria_id" class="form-label">Categoria <span class="text-danger">*</span></label>
+                    <select 
+                        class="form-select" 
+                        id="categoria_id" 
+                        name="categoria_id" 
+                        required
+                    >
+                        <option value="">-- Selecione uma categoria --</option>
+                        {% for categoria in categorias %}
+                            <option value="{{ categoria.id }}">{{ categoria.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="d-flex gap-2 justify-content-between">
+                    <a href="/artigos/meus" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Voltar
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Criar Artigo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/easymde@2.16.1/dist/easymde.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde@2.16.1/dist/easymde.min.css">
+
+<script>
+    const easyMDE = new EasyMDE({
+        element: document.getElementById("conteudo"),
+        spellChecker: false,
+        toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "image", "|", "preview", "side-by-side", "fullscreen", "|", "guide"]
+    });
+</script>
+{% endblock %}
