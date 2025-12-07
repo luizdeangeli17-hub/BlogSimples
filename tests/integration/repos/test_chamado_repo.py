@@ -130,7 +130,7 @@ class TestChamadoRepoObterPorUsuario:
             nome="Usuario Sem Chamados",
             email="sem_chamados@example.com",
             senha=criar_hash_senha("Senha@123"),
-            perfil=Perfil.CLIENTE.value
+            perfil=Perfil.AUTOR.value
         )
         usuario_id = usuario_repo.inserir(usuario)
 
@@ -270,7 +270,7 @@ class TestChamadoRepoContadores:
             nome="Usuario Contador",
             email="contador@example.com",
             senha=criar_hash_senha("Senha@123"),
-            perfil=Perfil.CLIENTE.value
+            perfil=Perfil.AUTOR.value
         )
         usuario_id = usuario_repo.inserir(usuario)
 
@@ -568,7 +568,7 @@ class TestChamadoInteracaoRepoMarcarComoLidas:
         )
         chamado_interacao_repo.inserir(interacao)
 
-        # Usuário cliente visualiza e marca como lido
+        # Usuário autor visualiza e marca como lido
         resultado = chamado_interacao_repo.marcar_como_lidas(chamado_repo_teste, usuario_repo_teste)
 
         assert resultado is True
@@ -607,7 +607,7 @@ class TestChamadoInteracaoRepoObterContadorNaoLidas:
         )
         chamado_id = chamado_repo.inserir(chamado)
 
-        # Criar interações do admin (não lidas pelo cliente)
+        # Criar interações do admin (não lidas pelo autor)
         for i in range(2):
             interacao = ChamadoInteracao(
                 id=0,

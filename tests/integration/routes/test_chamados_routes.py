@@ -24,15 +24,15 @@ class TestCriarChamado:
         response = client.get("/chamados/cadastrar", follow_redirects=False)
         assert response.status_code == status.HTTP_303_SEE_OTHER
 
-    def test_get_formulario_cadastro(self, cliente_autenticado):
+    def test_get_formulario_cadastro(self, autor_autenticado):
         """Usuário autenticado deve acessar formulário de cadastro"""
-        response = cliente_autenticado.get("/chamados/cadastrar")
+        response = autor_autenticado.get("/chamados/cadastrar")
         assert response.status_code == status.HTTP_200_OK
         assert "chamado" in response.text.lower()
 
-    def test_criar_chamado_com_dados_validos(self, cliente_autenticado):
+    def test_criar_chamado_com_dados_validos(self, autor_autenticado):
         """Deve criar chamado com dados válidos"""
-        response = cliente_autenticado.post("/chamados/cadastrar", data={
+        response = autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Problema no sistema",
             "descricao": "Descrição detalhada do problema encontrado",
             "prioridade": "Alta"
@@ -42,9 +42,9 @@ class TestCriarChamado:
         assert response.status_code == status.HTTP_303_SEE_OTHER
         assert response.headers["location"] == "/chamados/listar"
 
-    def test_criar_chamado_titulo_curto(self, cliente_autenticado):
+    def test_criar_chamado_titulo_curto(self, autor_autenticado):
         """Deve rejeitar título com menos de 10 caracteres"""
-        response = cliente_autenticado.post("/chamados/cadastrar", data={
+        response = autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Curto",  # Menos de 10 caracteres
             "descricao": "Descrição detalhada do problema",
             "prioridade": "Média"
@@ -53,10 +53,10 @@ class TestCriarChamado:
         assert response.status_code == status.HTTP_200_OK
         assert "erro" in response.text.lower() or "inválid" in response.text.lower()
 
-    def test_criar_chamado_titulo_longo(self, cliente_autenticado):
+    def test_criar_chamado_titulo_longo(self, autor_autenticado):
         """Deve rejeitar título com mais de 200 caracteres"""
         titulo_longo = "T" * 201
-        response = cliente_autenticado.post("/chamados/cadastrar", data={
+        response = autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": titulo_longo,
             "descricao": "Descrição do problema",
             "prioridade": "Baixa"
@@ -64,9 +64,9 @@ class TestCriarChamado:
 
         assert response.status_code == status.HTTP_200_OK
 
-    def test_criar_chamado_descricao_curta(self, cliente_autenticado):
+    def test_criar_chamado_descricao_curta(self, autor_autenticado):
         """Deve rejeitar descrição com menos de 20 caracteres"""
-        response = cliente_autenticado.post("/chamados/cadastrar", data={
+        response = autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Título válido do chamado",
             "descricao": "Curta",  # Menos de 20 caracteres
             "prioridade": "Média"
@@ -75,9 +75,9 @@ class TestCriarChamado:
         assert response.status_code == status.HTTP_200_OK
         assert "erro" in response.text.lower() or "inválid" in response.text.lower()
 
-    def test_criar_chamado_sem_prioridade(self, cliente_autenticado):
+    def test_criar_chamado_sem_prioridade(self, autor_autenticado):
         """Deve exigir prioridade"""
-        response = cliente_autenticado.post("/chamados/cadastrar", data={
+        response = autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Título do chamado",
             "descricao": "Descrição detalhada do problema encontrado no sistema",
             "prioridade": ""
@@ -85,9 +85,9 @@ class TestCriarChamado:
 
         assert response.status_code in [status.HTTP_200_OK, status.HTTP_422_UNPROCESSABLE_ENTITY]
 
-    def test_criar_chamado_prioridade_invalida(self, cliente_autenticado):
+    def test_criar_chamado_prioridade_invalida(self, autor_autenticado):
         """Deve rejeitar prioridade inválida"""
-        response = cliente_autenticado.post("/chamados/cadastrar", data={
+        response = autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Título do chamado",
             "descricao": "Descrição detalhada do problema encontrado",
             "prioridade": "SuperUrgente"  # Prioridade não existe
@@ -95,17 +95,17 @@ class TestCriarChamado:
 
         assert response.status_code == status.HTTP_200_OK
 
-    def test_chamado_criado_com_status_aberto(self, cliente_autenticado):
+    def test_chamado_criado_com_status_aberto(self, autor_autenticado):
         """Chamado criado deve ter status 'Aberto'"""
         # Criar chamado
-        cliente_autenticado.post("/chamados/cadastrar", data={
+        autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Novo problema",
             "descricao": "Descrição detalhada do problema encontrado",
             "prioridade": "Alta"
         })
 
         # Verificar na listagem
-        response = cliente_autenticado.get("/chamados/listar")
+        response = autor_autenticado.get("/chamados/listar")
         assert response.status_code == status.HTTP_200_OK
         assert "aberto" in response.text.lower()
 
@@ -118,17 +118,17 @@ class TestListarChamados:
         response = client.get("/chamados/listar", follow_redirects=False)
         assert response.status_code == status.HTTP_303_SEE_OTHER
 
-    def test_listar_chamados_usuario(self, cliente_autenticado):
+    def test_listar_chamados_usuario(self, autor_autenticado):
         """Usuário deve conseguir listar seus chamados"""
-        response = cliente_autenticado.get("/chamados/listar")
+        response = autor_autenticado.get("/chamados/listar")
         assert response.status_code == status.HTTP_200_OK
         assert "chamado" in response.text.lower()
 
-    def test_usuario_ve_apenas_proprios_chamados(self, client, cliente_autenticado):
+    def test_usuario_ve_apenas_proprios_chamados(self, client, autor_autenticado):
         """Usuário deve ver apenas seus próprios chamados"""
-        # Este cliente já está autenticado como um usuário comum
+        # Este autor já está autenticado como um usuário comum
         # Criar primeiro chamado
-        response = cliente_autenticado.post("/chamados/cadastrar", data={
+        response = autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Meu Chamado",
             "descricao": "Descrição do meu chamado específico",
             "prioridade": "Alta"
@@ -136,7 +136,7 @@ class TestListarChamados:
         assert response.status_code == status.HTTP_303_SEE_OTHER
 
         # Verificar que o usuário consegue listar seus chamados
-        response = cliente_autenticado.get("/chamados/listar")
+        response = autor_autenticado.get("/chamados/listar")
         assert response.status_code == status.HTTP_200_OK
         assert "Meu Chamado" in response.text
 
@@ -144,23 +144,23 @@ class TestListarChamados:
 class TestVisualizarChamado:
     """Testes de visualização de chamados"""
 
-    def test_visualizar_proprio_chamado(self, cliente_autenticado):
+    def test_visualizar_proprio_chamado(self, autor_autenticado):
         """Usuário deve visualizar detalhes do próprio chamado"""
         # Criar chamado
-        cliente_autenticado.post("/chamados/cadastrar", data={
+        autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Problema urgente",
             "descricao": "Descrição muito detalhada do problema encontrado no sistema",
             "prioridade": "Urgente"
         })
 
         # Assumir que é o chamado ID 1
-        response = cliente_autenticado.get("/chamados/1/visualizar")
+        response = autor_autenticado.get("/chamados/1/visualizar")
         assert response.status_code == status.HTTP_200_OK
         assert "Problema urgente" in response.text
 
-    def test_visualizar_chamado_inexistente(self, cliente_autenticado):
+    def test_visualizar_chamado_inexistente(self, autor_autenticado):
         """Deve retornar erro ao visualizar chamado inexistente"""
-        response = cliente_autenticado.get("/chamados/999/visualizar", follow_redirects=False)
+        response = autor_autenticado.get("/chamados/999/visualizar", follow_redirects=False)
         # Pode redirecionar ou retornar 404
         assert response.status_code in [status.HTTP_303_SEE_OTHER, status.HTTP_404_NOT_FOUND]
 
@@ -168,22 +168,22 @@ class TestVisualizarChamado:
 class TestExcluirChamado:
     """Testes de exclusão de chamados"""
 
-    def test_excluir_proprio_chamado(self, cliente_autenticado):
+    def test_excluir_proprio_chamado(self, autor_autenticado):
         """Usuário deve poder excluir próprio chamado"""
         # Criar chamado
-        cliente_autenticado.post("/chamados/cadastrar", data={
+        autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Chamado a ser excluído",
             "descricao": "Descrição do chamado que será excluído",
             "prioridade": "Baixa"
         })
 
         # Excluir
-        response = cliente_autenticado.post("/chamados/1/excluir", follow_redirects=False)
+        response = autor_autenticado.post("/chamados/1/excluir", follow_redirects=False)
         assert response.status_code == status.HTTP_303_SEE_OTHER
 
-    def test_excluir_chamado_inexistente(self, cliente_autenticado):
+    def test_excluir_chamado_inexistente(self, autor_autenticado):
         """Deve retornar erro ao excluir chamado inexistente"""
-        response = cliente_autenticado.post("/chamados/999/excluir", follow_redirects=False)
+        response = autor_autenticado.post("/chamados/999/excluir", follow_redirects=False)
         assert response.status_code == status.HTTP_303_SEE_OTHER
 
 
@@ -221,19 +221,19 @@ class TestAdminListarChamados:
         assert "Primeiro chamado" in response.text
         assert "Segundo chamado" in response.text
 
-    def test_usuario_comum_nao_acessa_admin_listagem(self, cliente_autenticado):
+    def test_usuario_comum_nao_acessa_admin_listagem(self, autor_autenticado):
         """Usuário comum não deve acessar listagem admin"""
-        response = cliente_autenticado.get("/admin/chamados/listar", follow_redirects=False)
+        response = autor_autenticado.get("/admin/chamados/listar", follow_redirects=False)
         assert response.status_code == status.HTTP_303_SEE_OTHER
 
 
 class TestAdminResponderChamado:
     """Testes de resposta a chamados pelo admin"""
 
-    def test_admin_acessa_formulario_responder(self, cliente_autenticado, admin_autenticado):
+    def test_admin_acessa_formulario_responder(self, autor_autenticado, admin_autenticado):
         """Admin deve acessar formulário de resposta"""
         # Usuário cria chamado
-        response = cliente_autenticado.post("/chamados/cadastrar", data={
+        response = autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Preciso de ajuda urgente",
             "descricao": "Descrição detalhada do problema que preciso resolver no sistema",
             "prioridade": "Alta"
@@ -271,10 +271,10 @@ class TestAdminResponderChamado:
         assert response.status_code == status.HTTP_303_SEE_OTHER
         assert response.headers["location"] == "/admin/chamados/listar"
 
-    def test_admin_muda_status_para_em_analise(self, cliente_autenticado, admin_autenticado):
+    def test_admin_muda_status_para_em_analise(self, autor_autenticado, admin_autenticado):
         """Admin deve poder mudar status para Em Análise"""
         # Usuário cria chamado
-        response = cliente_autenticado.post("/chamados/cadastrar", data={
+        response = autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Novo chamado",
             "descricao": "Descrição do novo chamado aberto pelo usuário",
             "prioridade": "Média"
@@ -293,10 +293,10 @@ class TestAdminResponderChamado:
         response = admin_autenticado.get("/admin/chamados/listar")
         assert response.status_code == status.HTTP_200_OK
 
-    def test_admin_muda_status_para_resolvido(self, cliente_autenticado, admin_autenticado):
+    def test_admin_muda_status_para_resolvido(self, autor_autenticado, admin_autenticado):
         """Admin deve poder mudar status para Resolvido"""
         # Usuário cria chamado
-        response = cliente_autenticado.post("/chamados/cadastrar", data={
+        response = autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Chamado resolvido",
             "descricao": "Descrição do chamado que será resolvido",
             "prioridade": "Alta"
@@ -363,17 +363,17 @@ class TestAdminResponderChamado:
         assert response.status_code == status.HTTP_200_OK
         assert "erro" in response.text.lower() or "inválid" in response.text.lower()
 
-    def test_usuario_comum_nao_pode_responder(self, cliente_autenticado):
+    def test_usuario_comum_nao_pode_responder(self, autor_autenticado):
         """Usuário comum não deve poder responder chamados"""
         # Criar chamado primeiro
-        cliente_autenticado.post("/chamados/cadastrar", data={
+        autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Chamado próprio",
             "descricao": "Descrição do meu próprio chamado",
             "prioridade": "Alta"
         })
 
         # Tentar responder
-        response = cliente_autenticado.post("/admin/chamados/1/responder", data={
+        response = autor_autenticado.post("/admin/chamados/1/responder", data={
             "mensagem": "Tentando responder meu próprio chamado",
             "status_chamado": "Resolvido"
         }, follow_redirects=False)
@@ -443,10 +443,10 @@ class TestHistoricoInteracoes:
 
         assert response.status_code == status.HTTP_303_SEE_OTHER
 
-    def test_usuario_pode_responder_proprio_chamado(self, cliente_autenticado):
+    def test_usuario_pode_responder_proprio_chamado(self, autor_autenticado):
         """Usuário deve poder adicionar mensagens ao seu próprio chamado"""
         # Criar chamado
-        response = cliente_autenticado.post("/chamados/cadastrar", data={
+        response = autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Chamado com múltiplas mensagens",
             "descricao": "Descrição inicial do chamado",
             "prioridade": "Alta"
@@ -455,17 +455,17 @@ class TestHistoricoInteracoes:
         assert response.status_code == status.HTTP_303_SEE_OTHER
 
         # Usuário adiciona informação adicional
-        response = cliente_autenticado.post("/chamados/1/responder", data={
+        response = autor_autenticado.post("/chamados/1/responder", data={
             "mensagem": "Informação adicional sobre o problema reportado"
         }, follow_redirects=False)
 
         assert response.status_code == status.HTTP_303_SEE_OTHER
         assert response.headers["location"] == "/chamados/1/visualizar"
 
-    def test_historico_mostra_todas_interacoes(self, cliente_autenticado, admin_autenticado):
+    def test_historico_mostra_todas_interacoes(self, autor_autenticado, admin_autenticado):
         """Histórico deve mostrar todas as interações em ordem"""
         # Usuário cria chamado
-        response = cliente_autenticado.post("/chamados/cadastrar", data={
+        response = autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Chamado com histórico completo",
             "descricao": "Descrição inicial do problema",
             "prioridade": "Alta"
@@ -480,7 +480,7 @@ class TestHistoricoInteracoes:
         assert response.status_code == status.HTTP_303_SEE_OTHER
 
         # Usuário responde
-        response = cliente_autenticado.post("/chamados/1/responder", data={
+        response = autor_autenticado.post("/chamados/1/responder", data={
             "mensagem": "Resposta do usuário com mais informações"
         }, follow_redirects=False)
         assert response.status_code == status.HTTP_303_SEE_OTHER
@@ -493,7 +493,7 @@ class TestHistoricoInteracoes:
         assert response.status_code == status.HTTP_303_SEE_OTHER
 
         # Verificar histórico
-        response = cliente_autenticado.get("/chamados/1/visualizar")
+        response = autor_autenticado.get("/chamados/1/visualizar")
         assert response.status_code == status.HTTP_200_OK
         assert "Descrição inicial do problema" in response.text
         assert "Primeira resposta do admin" in response.text
@@ -504,10 +504,10 @@ class TestHistoricoInteracoes:
 class TestFluxoCompleto:
     """Testes de fluxo completo do sistema de chamados"""
 
-    def test_fluxo_completo_usuario_e_admin(self, cliente_autenticado, admin_autenticado):
+    def test_fluxo_completo_usuario_e_admin(self, autor_autenticado, admin_autenticado):
         """Testa fluxo completo: criar -> responder -> resolver -> fechar"""
         # 1. Usuário cria chamado
-        response = cliente_autenticado.post("/chamados/cadastrar", data={
+        response = autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Fluxo completo teste",
             "descricao": "Testando o fluxo completo do sistema de chamados",
             "prioridade": "Alta"
@@ -540,12 +540,12 @@ class TestFluxoCompleto:
 class TestReabrirChamado:
     """Testes para reabertura de chamados fechados"""
 
-    def test_admin_reabre_chamado_fechado(self, cliente_autenticado, admin_autenticado):
+    def test_admin_reabre_chamado_fechado(self, autor_autenticado, admin_autenticado):
         """Admin deve poder reabrir chamado fechado"""
         from model.chamado_model import StatusChamado
 
         # Criar chamado
-        response = cliente_autenticado.post("/chamados/cadastrar", data={
+        response = autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Chamado para reabrir",
             "descricao": "Descrição do chamado que será reaberto",
             "prioridade": "Alta"
@@ -561,10 +561,10 @@ class TestReabrirChamado:
         assert response.status_code == status.HTTP_303_SEE_OTHER
         assert response.headers["location"] == "/admin/chamados/listar"
 
-    def test_reabrir_chamado_nao_fechado(self, cliente_autenticado, admin_autenticado):
+    def test_reabrir_chamado_nao_fechado(self, autor_autenticado, admin_autenticado):
         """Não deve reabrir chamado que não está fechado"""
         # Criar chamado (status inicial é "Aberto")
-        response = cliente_autenticado.post("/chamados/cadastrar", data={
+        response = autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Chamado aberto",
             "descricao": "Descrição do chamado ainda aberto",
             "prioridade": "Média"
@@ -584,12 +584,12 @@ class TestReabrirChamado:
 class TestErrosAdminChamados:
     """Testes de cenários de erro em admin chamados"""
 
-    def test_erro_ao_salvar_resposta(self, cliente_autenticado, admin_autenticado):
+    def test_erro_ao_salvar_resposta(self, autor_autenticado, admin_autenticado):
         """Deve tratar erro ao salvar resposta do admin"""
         from unittest.mock import patch
 
         # Criar chamado
-        response = cliente_autenticado.post("/chamados/cadastrar", data={
+        response = autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Chamado com erro",
             "descricao": "Descrição do chamado que terá erro",
             "prioridade": "Alta"
@@ -605,12 +605,12 @@ class TestErrosAdminChamados:
 
             assert response.status_code == status.HTTP_303_SEE_OTHER
 
-    def test_erro_ao_fechar_chamado(self, cliente_autenticado, admin_autenticado):
+    def test_erro_ao_fechar_chamado(self, autor_autenticado, admin_autenticado):
         """Deve tratar erro ao fechar chamado"""
         from unittest.mock import patch
 
         # Criar chamado
-        response = cliente_autenticado.post("/chamados/cadastrar", data={
+        response = autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Chamado para fechar",
             "descricao": "Descrição do chamado que terá erro ao fechar",
             "prioridade": "Média"
@@ -622,12 +622,12 @@ class TestErrosAdminChamados:
             response = admin_autenticado.post("/admin/chamados/1/fechar", follow_redirects=False)
             assert response.status_code == status.HTTP_303_SEE_OTHER
 
-    def test_erro_ao_reabrir_chamado(self, cliente_autenticado, admin_autenticado):
+    def test_erro_ao_reabrir_chamado(self, autor_autenticado, admin_autenticado):
         """Deve tratar erro ao reabrir chamado"""
         from unittest.mock import patch
 
         # Criar e fechar chamado
-        response = cliente_autenticado.post("/chamados/cadastrar", data={
+        response = autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Chamado para reabrir com erro",
             "descricao": "Descrição do chamado que terá erro ao reabrir",
             "prioridade": "Baixa"
@@ -645,12 +645,12 @@ class TestErrosAdminChamados:
 class TestRateLimitChamados:
     """Testes de rate limiting para chamados"""
 
-    def test_rate_limit_criar_chamado(self, cliente_autenticado):
+    def test_rate_limit_criar_chamado(self, autor_autenticado):
         """Rate limit deve bloquear criação excessiva de chamados"""
         from unittest.mock import patch
 
         with patch('routes.chamados_routes.chamado_criar_limiter.verificar', return_value=False):
-            response = cliente_autenticado.post("/chamados/cadastrar", data={
+            response = autor_autenticado.post("/chamados/cadastrar", data={
                 "titulo": "Título do chamado teste",
                 "descricao": "Descrição do chamado teste com texto suficiente",
                 "prioridade": "Média"
@@ -659,19 +659,19 @@ class TestRateLimitChamados:
             assert response.status_code == status.HTTP_200_OK
             assert "muitas tentativas" in response.text.lower() or "aguarde" in response.text.lower()
 
-    def test_rate_limit_responder_chamado(self, cliente_autenticado):
+    def test_rate_limit_responder_chamado(self, autor_autenticado):
         """Rate limit deve bloquear resposta excessiva em chamados"""
         from unittest.mock import patch
 
         # Criar chamado
-        cliente_autenticado.post("/chamados/cadastrar", data={
+        autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Chamado para rate limit resposta",
             "descricao": "Descrição do chamado para testar rate limit",
             "prioridade": "Alta"
         })
 
         with patch('routes.chamados_routes.chamado_responder_limiter.verificar', return_value=False):
-            response = cliente_autenticado.post("/chamados/1/responder", data={
+            response = autor_autenticado.post("/chamados/1/responder", data={
                 "mensagem": "Mensagem de resposta no chamado"
             }, follow_redirects=False)
 
@@ -750,10 +750,10 @@ class TestPermissoesChamados:
 class TestExclusaoChamado:
     """Testes de restrições para exclusão de chamados"""
 
-    def test_excluir_chamado_nao_aberto(self, cliente_autenticado, admin_autenticado):
+    def test_excluir_chamado_nao_aberto(self, autor_autenticado, admin_autenticado):
         """Não deve permitir excluir chamado que não está aberto"""
         # Criar chamado
-        cliente_autenticado.post("/chamados/cadastrar", data={
+        autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Chamado para testar exclusão",
             "descricao": "Descrição do chamado para testar exclusão",
             "prioridade": "Média"
@@ -763,13 +763,13 @@ class TestExclusaoChamado:
         admin_autenticado.post("/admin/chamados/1/fechar")
 
         # Tentar excluir chamado fechado
-        response = cliente_autenticado.post("/chamados/1/excluir", follow_redirects=False)
+        response = autor_autenticado.post("/chamados/1/excluir", follow_redirects=False)
         assert response.status_code == status.HTTP_303_SEE_OTHER
 
-    def test_excluir_chamado_com_resposta_admin(self, cliente_autenticado, admin_autenticado):
+    def test_excluir_chamado_com_resposta_admin(self, autor_autenticado, admin_autenticado):
         """Não deve permitir excluir chamado que possui resposta de admin"""
         # Criar chamado
-        cliente_autenticado.post("/chamados/cadastrar", data={
+        autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Chamado para testar exclusão com resposta",
             "descricao": "Descrição do chamado para testar exclusão",
             "prioridade": "Alta"
@@ -782,32 +782,32 @@ class TestExclusaoChamado:
         })
 
         # Tentar excluir chamado que tem resposta de admin
-        response = cliente_autenticado.post("/chamados/1/excluir", follow_redirects=False)
+        response = autor_autenticado.post("/chamados/1/excluir", follow_redirects=False)
         assert response.status_code == status.HTTP_303_SEE_OTHER
 
 
 class TestValidacaoResposta:
     """Testes de validação em respostas de chamados"""
 
-    def test_resposta_invalida_validation_error(self, cliente_autenticado):
+    def test_resposta_invalida_validation_error(self, autor_autenticado):
         """Deve mostrar erro quando resposta não atende requisitos"""
         # Criar chamado
-        cliente_autenticado.post("/chamados/cadastrar", data={
+        autor_autenticado.post("/chamados/cadastrar", data={
             "titulo": "Chamado para testar resposta inválida",
             "descricao": "Descrição do chamado para testar validação de resposta",
             "prioridade": "Média"
         })
 
         # Responder com mensagem muito curta
-        response = cliente_autenticado.post("/chamados/1/responder", data={
+        response = autor_autenticado.post("/chamados/1/responder", data={
             "mensagem": "abc"  # Muito curta
         })
 
         assert response.status_code == status.HTTP_200_OK
 
-    def test_responder_chamado_inexistente(self, cliente_autenticado):
+    def test_responder_chamado_inexistente(self, autor_autenticado):
         """Deve redirecionar quando chamado não existe"""
-        response = cliente_autenticado.post("/chamados/9999/responder", data={
+        response = autor_autenticado.post("/chamados/9999/responder", data={
             "mensagem": "Tentativa de resposta em chamado inexistente"
         }, follow_redirects=False)
 

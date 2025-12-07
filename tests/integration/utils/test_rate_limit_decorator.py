@@ -19,7 +19,7 @@ from util.rate_limit_decorator import (
 from util.rate_limiter import RateLimiter
 
 
-class TestObterIdentificadorCliente:
+class TestObterIdentificadorAutor:
     """Testes para a função obter_identificador_cliente"""
 
     def test_ip_via_x_forwarded_for(self):

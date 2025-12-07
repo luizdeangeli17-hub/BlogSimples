@@ -180,13 +180,13 @@ def limpar_banco_dados():
 @pytest.fixture(scope="function")
 def client():
     """
-    Cliente de teste FastAPI com sessão limpa para cada teste
+    Autor de teste FastAPI com sessão limpa para cada teste
     Importa app DEPOIS de configurar o banco de dados
     """
     # Importar aqui para garantir que as configurações de teste sejam aplicadas
     from main import app
 
-    # Criar cliente de teste
+    # Criar autor de teste
     with TestClient(app) as test_client:
         yield test_client
 
@@ -198,7 +198,7 @@ def usuario_teste():
         "nome": "Usuario Teste",
         "email": "teste@example.com",
         "senha": "Senha@123",
-        "perfil": Perfil.CLIENTE.value  # Usa Enum Perfil
+        "perfil": Perfil.AUTOR.value  # Usa Enum Perfil
     }
 
 
@@ -219,7 +219,7 @@ def criar_usuario(client):
     Fixture que retorna uma função para criar usuários
     Útil para criar múltiplos usuários em um teste
     """
-    def _criar_usuario(nome: str, email: str, senha: str, perfil: str = Perfil.CLIENTE.value):
+    def _criar_usuario(nome: str, email: str, senha: str, perfil: str = Perfil.AUTOR.value):
         """Cadastra um usuário via endpoint de cadastro"""
         response = client.post("/cadastrar", data={
             "perfil": perfil,
@@ -237,10 +237,10 @@ def criar_usuario(client):
 def fazer_login(client):
     """
     Fixture que retorna uma função para fazer login
-    Retorna o cliente já autenticado
+    Retorna o autor já autenticado
     """
     def _fazer_login(email: str, senha: str):
-        """Faz login e retorna o cliente autenticado"""
+        """Faz login e retorna o autor autenticado"""
         response = client.post("/login", data={
             "email": email,
             "senha": senha
@@ -251,9 +251,9 @@ def fazer_login(client):
 
 
 @pytest.fixture
-def cliente_autenticado(client, criar_usuario, fazer_login, usuario_teste):
+def autor_autenticado(client, criar_usuario, fazer_login, usuario_teste):
     """
-    Fixture que retorna um cliente já autenticado
+    Fixture que retorna um autor já autenticado
     Cria um usuário e faz login automaticamente
     """
     # Criar usuário
@@ -266,14 +266,14 @@ def cliente_autenticado(client, criar_usuario, fazer_login, usuario_teste):
     # Fazer login
     fazer_login(usuario_teste["email"], usuario_teste["senha"])
 
-    # Retornar cliente autenticado
+    # Retornar autor autenticado
     return client
 
 
 @pytest.fixture
 def admin_autenticado(client, criar_usuario, fazer_login, admin_teste):
     """
-    Fixture que retorna um cliente autenticado como admin
+    Fixture que retorna um autor autenticado como admin
     """
     # Importar para manipular diretamente o banco
     from repo import usuario_repo
@@ -293,45 +293,45 @@ def admin_autenticado(client, criar_usuario, fazer_login, admin_teste):
     # Fazer login
     fazer_login(admin_teste["email"], admin_teste["senha"])
 
-    # Retornar cliente autenticado
+    # Retornar autor autenticado
     return client
 
 
 @pytest.fixture
-def vendedor_teste():
-    """Dados de um vendedor de teste"""
+def leitor_teste():
+    """Dados de um leitor de teste"""
     return {
-        "nome": "Vendedor Teste",
-        "email": "vendedor@example.com",
-        "senha": "Vendedor@123",
-        "perfil": Perfil.VENDEDOR.value
+        "nome": "Leitor Teste",
+        "email": "leitor@example.com",
+        "senha": "Leitor@123",
+        "perfil": Perfil.LEITOR.value
     }
 
 
 @pytest.fixture
-def vendedor_autenticado(client, criar_usuario, fazer_login, vendedor_teste):
+def leitor_autenticado(client, criar_usuario, fazer_login, leitor_teste):
     """
-    Fixture que retorna um cliente autenticado como vendedor
+    Fixture que retorna um autor autenticado como leitor
     """
     # Importar para manipular diretamente o banco
     from repo import usuario_repo
     from model.usuario_model import Usuario
     from util.security import criar_hash_senha
 
-    # Criar vendedor diretamente no banco
-    vendedor = Usuario(
+    # Criar leitor diretamente no banco
+    leitor = Usuario(
         id=0,
-        nome=vendedor_teste["nome"],
-        email=vendedor_teste["email"],
-        senha=criar_hash_senha(vendedor_teste["senha"]),
-        perfil=Perfil.VENDEDOR.value
+        nome=leitor_teste["nome"],
+        email=leitor_teste["email"],
+        senha=criar_hash_senha(leitor_teste["senha"]),
+        perfil=Perfil.LEITOR.value
     )
-    usuario_repo.inserir(vendedor)
+    usuario_repo.inserir(leitor)
 
     # Fazer login
-    fazer_login(vendedor_teste["email"], vendedor_teste["senha"])
+    fazer_login(leitor_teste["email"], leitor_teste["senha"])
 
-    # Retornar cliente autenticado
+    # Retornar autor autenticado
     return client
 
 
@@ -378,13 +378,13 @@ def dois_usuarios(client, criar_usuario):
         "nome": "Usuario Um",
         "email": "usuario1@example.com",
         "senha": "Senha@123",
-        "perfil": Perfil.CLIENTE.value
+        "perfil": Perfil.AUTOR.value
     }
     usuario2 = {
         "nome": "Usuario Dois",
         "email": "usuario2@example.com",
         "senha": "Senha@456",
-        "perfil": Perfil.CLIENTE.value
+        "perfil": Perfil.AUTOR.value
     }
 
     # Criar ambos usuários
@@ -395,15 +395,15 @@ def dois_usuarios(client, criar_usuario):
 
 
 @pytest.fixture
-def usuario_com_foto(cliente_autenticado, foto_teste_base64):
+def usuario_com_foto(autor_autenticado, foto_teste_base64):
     """
-    Fixture que retorna um cliente autenticado com foto de perfil.
+    Fixture que retorna um autor autenticado com foto de perfil.
 
     Returns:
         TestClient autenticado com foto já salva
     """
     # Atualizar foto do perfil
-    response = cliente_autenticado.post(
+    response = autor_autenticado.post(
         "/perfil/foto/atualizar",
         json={"imagem": foto_teste_base64},
         follow_redirects=False
@@ -412,7 +412,7 @@ def usuario_com_foto(cliente_autenticado, foto_teste_base64):
     # Verificar se foto foi salva com sucesso
     assert response.status_code in [status.HTTP_200_OK, status.HTTP_303_SEE_OTHER]
 
-    return cliente_autenticado
+    return autor_autenticado
 
 
 @pytest.fixture
@@ -456,7 +456,7 @@ def criar_usuario_direto():
         nome: str,
         email: str,
         senha: str,
-        perfil: str = Perfil.CLIENTE.value
+        perfil: str = Perfil.AUTOR.value
     ) -> int:
         """
         Cria usuário diretamente no banco.
@@ -465,7 +465,7 @@ def criar_usuario_direto():
             nome: Nome do usuário
             email: Email do usuário
             senha: Senha (será hasheada)
-            perfil: Perfil do usuário (padrão: Cliente)
+            perfil: Perfil do usuário (padrão: Autor)
 
         Returns:
             ID do usuário criado

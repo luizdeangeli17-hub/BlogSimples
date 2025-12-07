@@ -32,7 +32,7 @@ class CadastroPage:
         Preenche o formulario de cadastro.
 
         Args:
-            perfil: "Cliente" ou "Vendedor"
+            perfil: "Autor" ou "Leitor"
             nome: Nome completo
             email: E-mail
             senha: Senha

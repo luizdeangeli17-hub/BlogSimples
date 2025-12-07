@@ -354,7 +354,7 @@ class TestDynamicRateLimiter:
             assert "minha_chave_max" in repr_str
 
 
-class TestObterIdentificadorCliente:
+class TestObterIdentificadorAutor:
     """Testes para a função obter_identificador_cliente"""
 
     def test_com_client_host(self):

@@ -56,25 +56,25 @@ class TestAdminChamadosAutenticacao:
 class TestAdminChamadosAutorizacao:
     """Testes de autorizacao para rotas de admin de chamados"""
 
-    def test_listar_requer_admin(self, cliente_autenticado):
+    def test_listar_requer_admin(self, autor_autenticado):
         """Apenas admin pode listar todos os chamados"""
-        response = cliente_autenticado.get("/admin/chamados/listar", follow_redirects=False)
-        # Cliente comum deve ser negado (403 ou redirect)
+        response = autor_autenticado.get("/admin/chamados/listar", follow_redirects=False)
+        # Autor comum deve ser negado (403 ou redirect)
         assert response.status_code in [status.HTTP_303_SEE_OTHER, status.HTTP_403_FORBIDDEN]
 
-    def test_responder_get_requer_admin(self, cliente_autenticado):
+    def test_responder_get_requer_admin(self, autor_autenticado):
         """Apenas admin pode acessar formulario de resposta"""
-        response = cliente_autenticado.get("/admin/chamados/1/responder", follow_redirects=False)
+        response = autor_autenticado.get("/admin/chamados/1/responder", follow_redirects=False)
         assert response.status_code in [status.HTTP_303_SEE_OTHER, status.HTTP_403_FORBIDDEN]
 
-    def test_fechar_requer_admin(self, cliente_autenticado):
+    def test_fechar_requer_admin(self, autor_autenticado):
         """Apenas admin pode fechar chamado"""
-        response = cliente_autenticado.post("/admin/chamados/1/fechar", follow_redirects=False)
+        response = autor_autenticado.post("/admin/chamados/1/fechar", follow_redirects=False)
         assert response.status_code in [status.HTTP_303_SEE_OTHER, status.HTTP_403_FORBIDDEN]
 
-    def test_reabrir_requer_admin(self, cliente_autenticado):
+    def test_reabrir_requer_admin(self, autor_autenticado):
         """Apenas admin pode reabrir chamado"""
-        response = cliente_autenticado.post("/admin/chamados/1/reabrir", follow_redirects=False)
+        response = autor_autenticado.post("/admin/chamados/1/reabrir", follow_redirects=False)
         assert response.status_code in [status.HTTP_303_SEE_OTHER, status.HTTP_403_FORBIDDEN]
 
 

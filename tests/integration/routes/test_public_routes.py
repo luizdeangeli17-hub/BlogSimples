@@ -43,14 +43,14 @@ class TestRotasPublicas:
 class TestRotasPublicasComUsuarioLogado:
     """Testes de rotas públicas acessadas por usuário logado"""
 
-    def test_home_acessivel_usuario_logado(self, cliente_autenticado):
+    def test_home_acessivel_usuario_logado(self, autor_autenticado):
         """Usuário logado também pode acessar landing page"""
-        response = cliente_autenticado.get("/")
+        response = autor_autenticado.get("/")
         assert response.status_code == status.HTTP_200_OK
 
-    def test_sobre_acessivel_usuario_logado(self, cliente_autenticado):
+    def test_sobre_acessivel_usuario_logado(self, autor_autenticado):
         """Usuário logado pode acessar página sobre"""
-        response = cliente_autenticado.get("/sobre")
+        response = autor_autenticado.get("/sobre")
         assert response.status_code == status.HTTP_200_OK
 
     def test_home_acessivel_admin_logado(self, admin_autenticado):

@@ -227,7 +227,7 @@ class Perfil(EnumEntidade):
 
 ### 5.1. Atualizando o UsuarioLogado
 
-O arquivo `model/usuario_logado_model.py` contém o dataclass `UsuarioLogado` que representa o usuário autenticado. Como substituímos os perfis CLIENTE e VENDEDOR, você deve **substituir os métodos `is_cliente()` e `is_vendedor()` por `is_autor()` e `is_leitor()`**:
+O arquivo `model/usuario_logado_model.py` contém o dataclass `UsuarioLogado` que representa o usuário autenticado. Como substituímos os perfis CLIENTE e VENDEDOR, você deve **substituir os métodos `is_autor()` e `is_leitor()` por `is_autor()` e `is_leitor()`**:
 
 ```python
     def is_autor(self) -> bool:
@@ -239,7 +239,7 @@ O arquivo `model/usuario_logado_model.py` contém o dataclass `UsuarioLogado` qu
         return self.perfil == Perfil.LEITOR.value
 ```
 
-> **Nota:** O método `is_admin()` deve ser mantido. Remova apenas `is_cliente()` e `is_vendedor()`.
+> **Nota:** O método `is_admin()` deve ser mantido. Remova apenas `is_autor()` e `is_leitor()`.
 
 ### 5.3. Substituindo os Perfis Antigos Pelos Novos no Restante do Projeto
 
@@ -249,21 +249,21 @@ Clique na ferramenta de busca do VS Code (Ctrl + Shift + F), ative a sensibilida
 |----------------------|---------------------|
 | `CLIENTE`            | `AUTOR`             |
 | `VENDEDOR`           | `LEITOR`            |
-| `Cliente`            | `Autor`             |
-| `Vendedor`           | `Leitor`            |
-| `cliente`            | `autor`             |
-| `vendedor`           | `leitor`            |
+| `Autor`            | `Autor`             |
+| `Leitor`           | `Leitor`            |
+| `autor`            | `autor`             |
+| `leitor`           | `leitor`            |
 
 
 ### 5.4. Acertando Uma Substituição Incorreta
 
-Antes da substituição anterior, havia uma função chamada `obter_identificador_cliente` que foi renomeada para `obter_identificador_autor`. Você deve renomeá-la de volta para `obter_identificador_cliente` para manter a consistência com o restante do projeto. 
+Antes da substituição anterior, havia uma função chamada `obter_identificador_autor` que foi renomeada para `obter_identificador_autor`. Você deve renomeá-la de volta para `obter_identificador_autor` para manter a consistência com o restante do projeto. 
 
 Para fazer a correção, na ferramenta de busca do VS Code (Ctrl + Shift + F), ative a sensibilidade a maiúsculas e minúsculas e faça a seguinte substituição global no projeto (todas as ocorrências):
 
 | Buscar                       | Substituir por                |
 |------------------------------|-------------------------------|
-| `obter_identificador_autor`  | `obter_identificador_cliente` |
+| `obter_identificador_autor`  | `obter_identificador_autor` |
 
 Feito isso, o projeto estará pronto para que você possa seguir em frente com o restante desse tutorial.
 
@@ -620,7 +620,7 @@ from repo import categoria_repo
 # Utilitários
 from util.auth_decorator import requer_autenticacao
 from util.flash_messages import informar_sucesso, informar_erro
-from util.rate_limiter import DynamicRateLimiter, obter_identificador_cliente
+from util.rate_limiter import DynamicRateLimiter, obter_identificador_autor
 from util.exceptions import ErroValidacaoFormulario
 from util.perfis import Perfil
 from util.template_util import criar_templates
@@ -710,7 +710,7 @@ async def post_cadastrar(
     Acessível em: POST /admin/categorias/cadastrar
     """
     # Rate limiting
-    ip = obter_identificador_cliente(request)
+    ip = obter_identificador_autor(request)
     if not admin_categorias_limiter.verificar(ip):
         informar_erro(
             request,
@@ -803,7 +803,7 @@ async def post_editar(
     Acessível em: POST /admin/categorias/editar/<id>
     """
     # Rate limiting
-    ip = obter_identificador_cliente(request)
+    ip = obter_identificador_autor(request)
     if not admin_categorias_limiter.verificar(ip):
         informar_erro(
             request,
@@ -881,7 +881,7 @@ async def post_excluir(
     Acessível em: POST /admin/categorias/excluir/<id>
     """
     # Rate limiting
-    ip = obter_identificador_cliente(request)
+    ip = obter_identificador_autor(request)
     if not admin_categorias_limiter.verificar(ip):
         informar_erro(
             request,
@@ -1929,7 +1929,7 @@ from model.usuario_logado_model import UsuarioLogado
 from repo import artigo_repo, categoria_repo
 from util.auth_decorator import requer_autenticacao
 from util.flash_messages import informar_sucesso, informar_erro
-from util.rate_limiter import DynamicRateLimiter, obter_identificador_cliente
+from util.rate_limiter import DynamicRateLimiter, obter_identificador_autor
 from util.exceptions import ErroValidacaoFormulario
 from util.perfis import Perfil
 from util.template_util import criar_templates
@@ -2006,7 +2006,7 @@ async def post_cadastrar(
     if not usuario_logado:
         return RedirectResponse(url="/login", status_code=status.HTTP_302_FOUND)
 
-    ip = obter_identificador_cliente(request)
+    ip = obter_identificador_autor(request)
     if not artigos_limiter.verificar(ip):
         informar_erro(
             request,
@@ -2138,7 +2138,7 @@ async def post_editar(
     if not usuario_logado:
         return RedirectResponse(url="/login", status_code=status.HTTP_302_FOUND)
 
-    ip = obter_identificador_cliente(request)
+    ip = obter_identificador_autor(request)
     if not artigos_limiter.verificar(ip):
         informar_erro(
             request,
@@ -2236,7 +2236,7 @@ async def post_excluir(
     if not usuario_logado:
         return RedirectResponse(url="/login", status_code=status.HTTP_302_FOUND)
     
-    ip = obter_identificador_cliente(request)
+    ip = obter_identificador_autor(request)
     if not artigos_limiter.verificar(ip):
         informar_erro(
             request,
@@ -3760,7 +3760,7 @@ from fastapi.responses import RedirectResponse
 
 from util.template_util import criar_templates
 from util.auth_decorator import obter_usuario_logado  # NOVO
-from util.rate_limiter import DynamicRateLimiter, obter_identificador_cliente
+from util.rate_limiter import DynamicRateLimiter, obter_identificador_autor
 from util.flash_messages import informar_erro
 from util.logger_config import logger
 from repo import artigo_repo, categoria_repo  # NOVO
@@ -3784,7 +3784,7 @@ async def home(request: Request):
     Rota inicial - Landing Page pública com os últimos artigos
     """
     # Rate limiting por IP
-    ip = obter_identificador_cliente(request)
+    ip = obter_identificador_autor(request)
     if not public_limiter.verificar(ip):
         informar_erro(request, "Muitas requisições. Aguarde alguns minutos.")
         logger.warning(f"Rate limit excedido para página pública - IP: {ip}")
@@ -3817,7 +3817,7 @@ async def index(request: Request):
     Sempre exibe a página pública, independentemente de autenticação
     """
     # Rate limiting por IP
-    ip = obter_identificador_cliente(request)
+    ip = obter_identificador_autor(request)
     if not public_limiter.verificar(ip):
         informar_erro(request, "Muitas requisições. Aguarde alguns minutos.")
         logger.warning(f"Rate limit excedido para página pública - IP: {ip}")
@@ -3849,7 +3849,7 @@ async def sobre(request: Request):
     Página "Sobre" com informações do projeto acadêmico
     """
     # Rate limiting por IP
-    ip = obter_identificador_cliente(request)
+    ip = obter_identificador_autor(request)
     if not public_limiter.verificar(ip):
         informar_erro(request, "Muitas requisições. Aguarde alguns minutos.")
         logger.warning(f"Rate limit excedido para página pública - IP: {ip}")

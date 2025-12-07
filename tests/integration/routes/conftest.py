@@ -17,7 +17,7 @@ def criar_chamado_admin(admin_autenticado, admin_teste):
     """
     Cria um chamado de teste para cenarios de admin.
 
-    Cria um usuario cliente e um chamado associado a ele,
+    Cria um usuario autor e um chamado associado a ele,
     para que o admin possa responder/fechar/reabrir.
 
     Returns:
@@ -27,23 +27,23 @@ def criar_chamado_admin(admin_autenticado, admin_teste):
     from util.security import criar_hash_senha
     from util.perfis import Perfil
 
-    # Criar um usuario cliente para associar ao chamado
-    cliente = Usuario(
+    # Criar um usuario autor para associar ao chamado
+    autor = Usuario(
         id=0,
-        nome="Cliente Chamado Teste",
-        email="cliente_chamado@example.com",
+        nome="Autor Chamado Teste",
+        email="autor_chamado@example.com",
         senha=criar_hash_senha("Senha@123"),
-        perfil=Perfil.CLIENTE.value
+        perfil=Perfil.AUTOR.value
     )
-    cliente_id = usuario_repo.inserir(cliente)
+    autor_id = usuario_repo.inserir(autor)
 
-    # Criar chamado associado ao cliente
+    # Criar chamado associado ao autor
     chamado = Chamado(
         id=0,
         titulo="Chamado de Teste Admin",
         status=StatusChamado.ABERTO,
         prioridade=PrioridadeChamado.MEDIA,
-        usuario_id=cliente_id
+        usuario_id=autor_id
     )
     chamado_id = chamado_repo.inserir(chamado)
 
@@ -51,7 +51,7 @@ def criar_chamado_admin(admin_autenticado, admin_teste):
     interacao = ChamadoInteracao(
         id=0,
         chamado_id=chamado_id,
-        usuario_id=cliente_id,
+        usuario_id=autor_id,
         mensagem="Descricao do problema inicial para teste",
         tipo=TipoInteracao.ABERTURA,
         data_interacao=None,

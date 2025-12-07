@@ -22,7 +22,7 @@ class TestXSSProtection:
         malicious_name = '<script>alert("XSS")</script>Usuario'
 
         response = client.post("/cadastrar", data={
-            "perfil": Perfil.CLIENTE.value,
+            "perfil": Perfil.AUTOR.value,
             "nome": malicious_name,
             "email": "xss@example.com",
             "senha": "Senha@123",
@@ -89,7 +89,7 @@ class TestSQLInjection:
         email_com_aspas = "test'user@example.com"
 
         response = client.post("/cadastrar", data={
-            "perfil": Perfil.CLIENTE.value,
+            "perfil": Perfil.AUTOR.value,
             "nome": "Usuario Teste",
             "email": email_com_aspas,
             "senha": "Senha@123",
@@ -104,18 +104,18 @@ class TestSQLInjection:
 class TestEscalacaoPrivilegios:
     """Testes de proteção contra escalação de privilégios"""
 
-    def test_cliente_nao_pode_acessar_admin_usuarios(self, cliente_autenticado):
-        """Cliente não deve acessar painel de administração de usuários"""
-        response = cliente_autenticado.get("/admin/usuarios/listar", follow_redirects=False)
+    def test_autor_nao_pode_acessar_admin_usuarios(self, autor_autenticado):
+        """Autor não deve acessar painel de administração de usuários"""
+        response = autor_autenticado.get("/admin/usuarios/listar", follow_redirects=False)
 
         assert response.status_code in [
             status.HTTP_303_SEE_OTHER,
             status.HTTP_403_FORBIDDEN
         ]
 
-    def test_cliente_nao_pode_criar_usuario_como_admin(self, cliente_autenticado):
-        """Cliente não deve poder acessar endpoint de criação de usuário admin"""
-        response = cliente_autenticado.post("/admin/usuarios/cadastrar", data={
+    def test_autor_nao_pode_criar_usuario_como_admin(self, autor_autenticado):
+        """Autor não deve poder acessar endpoint de criação de usuário admin"""
+        response = autor_autenticado.post("/admin/usuarios/cadastrar", data={
             "nome": "Hacker Admin",
             "email": "hacker@example.com",
             "senha": "Senha@123",
@@ -128,18 +128,18 @@ class TestEscalacaoPrivilegios:
             status.HTTP_403_FORBIDDEN
         ]
 
-    def test_vendedor_nao_pode_acessar_backups(self, vendedor_autenticado):
-        """Vendedor não deve acessar área de backups (apenas admin)"""
-        response = vendedor_autenticado.get("/admin/backups/listar", follow_redirects=False)
+    def test_leitor_nao_pode_acessar_backups(self, leitor_autenticado):
+        """Leitor não deve acessar área de backups (apenas admin)"""
+        response = leitor_autenticado.get("/admin/backups/listar", follow_redirects=False)
 
         assert response.status_code in [
             status.HTTP_303_SEE_OTHER,
             status.HTTP_403_FORBIDDEN
         ]
 
-    def test_vendedor_nao_pode_criar_backup(self, vendedor_autenticado):
-        """Vendedor não deve poder criar backups"""
-        response = vendedor_autenticado.post("/admin/backups/criar", follow_redirects=False)
+    def test_leitor_nao_pode_criar_backup(self, leitor_autenticado):
+        """Leitor não deve poder criar backups"""
+        response = leitor_autenticado.post("/admin/backups/criar", follow_redirects=False)
 
         assert response.status_code in [
             status.HTTP_303_SEE_OTHER,
@@ -191,7 +191,7 @@ class TestRateLimiting:
         # Tentar cadastrar 4 usuários (limite é 3)
         for i in range(4):
             response = client.post("/cadastrar", data={
-                "perfil": Perfil.CLIENTE.value,
+                "perfil": Perfil.AUTOR.value,
                 "nome": f"Usuario {i}",
                 "email": f"usuario{i}@example.com",
                 "senha": "Senha@123",
@@ -237,7 +237,7 @@ class TestValidacaoInputs:
         email_longo = "a" * 250 + "@example.com"
 
         response = client.post("/cadastrar", data={
-            "perfil": Perfil.CLIENTE.value,
+            "perfil": Perfil.AUTOR.value,
             "nome": "Usuario Teste",
             "email": email_longo,
             "senha": "Senha@123",
@@ -253,7 +253,7 @@ class TestValidacaoInputs:
         senha_unicode = "Sẽnha@123éú"
 
         response = client.post("/cadastrar", data={
-            "perfil": Perfil.CLIENTE.value,
+            "perfil": Perfil.AUTOR.value,
             "nome": "Usuario Teste",
             "email": "unicode@example.com",
             "senha": senha_unicode,
@@ -268,7 +268,7 @@ class TestValidacaoInputs:
         nome_com_null = "Usuario\x00Admin"
 
         response = client.post("/cadastrar", data={
-            "perfil": Perfil.CLIENTE.value,
+            "perfil": Perfil.AUTOR.value,
             "nome": nome_com_null,
             "email": "nullbyte@example.com",
             "senha": "Senha@123",
@@ -294,14 +294,14 @@ class TestValidacaoInputs:
 class TestAutorizacaoArquivos:
     """Testes de autorização de acesso a arquivos"""
 
-    def test_usuario_nao_pode_baixar_backup_diretamente(self, cliente_autenticado, criar_backup):
+    def test_usuario_nao_pode_baixar_backup_diretamente(self, autor_autenticado, criar_backup):
         """Usuário comum não deve poder baixar backups"""
 
         # Criar backup como admin (precisamos mockar ou usar admin)
-        # Este teste assume que cliente_autenticado não é admin
+        # Este teste assume que autor_autenticado não é admin
 
         # Tentar baixar backup (mesmo sem saber o nome)
-        response = cliente_autenticado.get(
+        response = autor_autenticado.get(
             "/admin/backups/download/algum_backup.db",
             follow_redirects=False
         )
@@ -330,19 +330,19 @@ class TestAutorizacaoArquivos:
 class TestSessionSecurity:
     """Testes de segurança de sessão"""
 
-    def test_logout_invalida_sessao(self, cliente_autenticado):
+    def test_logout_invalida_sessao(self, autor_autenticado):
         """Logout deve invalidar sessão e prevenir acesso subsequente"""
 
         # Verificar que está logado antes do logout
-        response_antes = cliente_autenticado.get("/usuario", follow_redirects=False)
+        response_antes = autor_autenticado.get("/usuario", follow_redirects=False)
         assert response_antes.status_code == 200, "Deveria estar autenticado antes do logout"
 
         # Fazer logout
-        response_logout = cliente_autenticado.get("/logout", follow_redirects=False)
+        response_logout = autor_autenticado.get("/logout", follow_redirects=False)
         assert_redirects_to(response_logout, "/")
 
         # Tentar acessar área protegida com mesma sessão
-        response_protegido = cliente_autenticado.get("/usuario", follow_redirects=False)
+        response_protegido = autor_autenticado.get("/usuario", follow_redirects=False)
 
         # Deve redirecionar para login (sessão inválida)
         assert_permission_denied(response_protegido)
@@ -438,7 +438,7 @@ class TestPasswordSecurity:
 
         for senha_fraca in senhas_fracas:
             response = client.post("/cadastrar", data={
-                "perfil": Perfil.CLIENTE.value,
+                "perfil": Perfil.AUTOR.value,
                 "nome": "Usuario Teste",
                 "email": f"teste_{senha_fraca}@example.com",
                 "senha": senha_fraca,

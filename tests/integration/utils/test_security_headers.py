@@ -29,7 +29,7 @@ class TestMiddlewareSegurancaHeaders:
 
     @pytest.fixture
     def client(self, app_com_middleware):
-        """Cliente de teste"""
+        """Autor de teste"""
         return TestClient(app_com_middleware)
 
     def test_header_x_content_type_options(self, client):

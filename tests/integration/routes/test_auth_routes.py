@@ -77,9 +77,9 @@ class TestLogin:
             or "e-mail" in texto
         )
 
-    def test_usuario_logado_nao_acessa_login(self, cliente_autenticado):
+    def test_usuario_logado_nao_acessa_login(self, autor_autenticado):
         """Usuário já logado deve ser redirecionado ao acessar /login"""
-        response = cliente_autenticado.get("/login", follow_redirects=False)
+        response = autor_autenticado.get("/login", follow_redirects=False)
         assert_redirects_to(response, "/usuario")
 
 
@@ -95,7 +95,7 @@ class TestCadastro:
     def test_cadastro_com_dados_validos(self, client):
         """Deve cadastrar usuário com dados válidos"""
         response = client.post("/cadastrar", data={
-            "perfil": Perfil.CLIENTE.value,
+            "perfil": Perfil.AUTOR.value,
             "nome": "Novo Usuario",
             "email": "novo@example.com",
             "senha": "Senha@123",
@@ -116,7 +116,7 @@ class TestCadastro:
 
         # Tentar cadastrar com mesmo e-mail
         response = client.post("/cadastrar", data={
-            "perfil": Perfil.CLIENTE.value,
+            "perfil": Perfil.AUTOR.value,
             "nome": "Outro Nome",
             "email": usuario_teste["email"],  # E-mail duplicado
             "senha": "OutraSenha@123",
@@ -129,7 +129,7 @@ class TestCadastro:
     def test_cadastro_com_senhas_diferentes(self, client):
         """Deve rejeitar quando senhas não coincidem"""
         response = client.post("/cadastrar", data={
-            "perfil": Perfil.CLIENTE.value,
+            "perfil": Perfil.AUTOR.value,
             "nome": "Usuario Teste",
             "email": "teste@example.com",
             "senha": "Senha@123",
@@ -142,7 +142,7 @@ class TestCadastro:
     def test_cadastro_com_senha_fraca(self, client):
         """Deve rejeitar senha que não atende requisitos de força"""
         response = client.post("/cadastrar", data={
-            "perfil": Perfil.CLIENTE.value,
+            "perfil": Perfil.AUTOR.value,
             "nome": "Usuario Teste",
             "email": "teste@example.com",
             "senha": "123456",  # Senha fraca
@@ -153,12 +153,12 @@ class TestCadastro:
         # Deve ter mensagem sobre requisitos de senha
         assert any(palavra in response.text.lower() for palavra in ["mínimo", "maiúscula", "senha"])
 
-    def test_cadastro_cria_usuario_com_perfil_cliente(self, client):
+    def test_cadastro_cria_usuario_com_perfil_autor(self, client):
         """Cadastro público deve criar usuário com perfil CLIENTE (Enum Perfil)"""
         from repo import usuario_repo
 
         client.post("/cadastrar", data={
-            "perfil": Perfil.CLIENTE.value,
+            "perfil": Perfil.AUTOR.value,
             "nome": "Usuario Teste",
             "email": "teste@example.com",
             "senha": "Senha@123",
@@ -168,26 +168,26 @@ class TestCadastro:
         # Verificar no banco que o usuário foi criado com perfil correto
         usuario = usuario_repo.obter_por_email("teste@example.com")
         assert usuario is not None
-        assert usuario.perfil == Perfil.CLIENTE.value  # Usa Enum Perfil
+        assert usuario.perfil == Perfil.AUTOR.value  # Usa Enum Perfil
 
 
 class TestLogout:
     """Testes de logout"""
 
-    def test_logout_limpa_sessao(self, cliente_autenticado):
+    def test_logout_limpa_sessao(self, autor_autenticado):
         """Logout deve limpar sessão e redirecionar para raiz"""
-        response = cliente_autenticado.get("/logout", follow_redirects=False)
+        response = autor_autenticado.get("/logout", follow_redirects=False)
 
         # Deve redirecionar para raiz do site
         assert_redirects_to(response, "/")
 
-    def test_logout_desautentica_usuario(self, cliente_autenticado):
+    def test_logout_desautentica_usuario(self, autor_autenticado):
         """Após logout, usuário não deve ter acesso a áreas protegidas"""
         # Fazer logout
-        cliente_autenticado.get("/logout")
+        autor_autenticado.get("/logout")
 
         # Tentar acessar área protegida
-        response = cliente_autenticado.get("/chamados/listar", follow_redirects=False)
+        response = autor_autenticado.get("/chamados/listar", follow_redirects=False)
 
         # Deve redirecionar para login
         assert response.status_code == status.HTTP_303_SEE_OTHER
@@ -272,14 +272,14 @@ class TestAutorizacao:
         response = client.get("/chamados/listar", follow_redirects=False)
         assert_permission_denied(response)
 
-    def test_usuario_autenticado_acessa_area_protegida(self, cliente_autenticado):
+    def test_usuario_autenticado_acessa_area_protegida(self, autor_autenticado):
         """Usuário autenticado deve acessar áreas protegidas"""
-        response = cliente_autenticado.get("/chamados/listar")
+        response = autor_autenticado.get("/chamados/listar")
         assert response.status_code == status.HTTP_200_OK
 
-    def test_cliente_nao_acessa_area_admin(self, cliente_autenticado):
-        """Cliente não deve acessar áreas administrativas"""
-        response = cliente_autenticado.get("/admin/usuarios/listar", follow_redirects=False)
+    def test_autor_nao_acessa_area_admin(self, autor_autenticado):
+        """Autor não deve acessar áreas administrativas"""
+        response = autor_autenticado.get("/admin/usuarios/listar", follow_redirects=False)
         # Deve redirecionar ou negar acesso
         assert response.status_code in [status.HTTP_303_SEE_OTHER, status.HTTP_403_FORBIDDEN]
 
@@ -442,7 +442,7 @@ class TestCadastroRateLimit:
         """Múltiplos cadastros devem ser limitados"""
         for i in range(5):
             response = client.post("/cadastrar", data={
-                "perfil": "Cliente",
+                "perfil": "Autor",
                 "nome": f"Usuario {i}",
                 "email": f"user{i}@test.com",
                 "senha": "Senha@123",
@@ -457,9 +457,9 @@ class TestCadastroRateLimit:
 class TestCadastroAdicional:
     """Testes adicionais de cadastro"""
 
-    def test_usuario_logado_nao_acessa_cadastro(self, cliente_autenticado):
+    def test_usuario_logado_nao_acessa_cadastro(self, autor_autenticado):
         """Usuário já logado deve ser redirecionado ao acessar /cadastrar"""
-        response = cliente_autenticado.get("/cadastrar", follow_redirects=False)
+        response = autor_autenticado.get("/cadastrar", follow_redirects=False)
         assert_redirects_to(response, "/usuario")
 
     def test_cadastro_erro_ao_inserir(self, client):
@@ -469,7 +469,7 @@ class TestCadastroAdicional:
         with patch('routes.auth_routes.verificar_email_disponivel', return_value=(True, None)):
             with patch('routes.auth_routes.usuario_repo.inserir', return_value=None):
                 response = client.post("/cadastrar", data={
-                    "perfil": "Cliente",
+                    "perfil": "Autor",
                     "nome": "Usuario Teste",
                     "email": "teste@test.com",
                     "senha": "Senha@123",

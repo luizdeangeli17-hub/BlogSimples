@@ -224,7 +224,7 @@ def limpar_banco_e2e(e2e_test_database):
 def usuario_e2e_dados():
     """Dados de usuario para testes E2E."""
     return {
-        "perfil": "Cliente",
+        "perfil": "Autor",
         "nome": "Usuario E2E Teste",
         "email": "e2e_teste@example.com",
         "senha": "SenhaE2E@123",

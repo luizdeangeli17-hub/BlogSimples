@@ -414,7 +414,7 @@ def com_rate_limit(
     Decorator que aplica rate limiting a uma rota FastAPI.
 
     Simplifica o código repetitivo de rate limiting, extraindo automaticamente
-    o IP do cliente e verificando o limiter. Se exceder o limite, levanta
+    o IP do autor e verificando o limiter. Se exceder o limite, levanta
     HTTPException 429.
 
     Args:

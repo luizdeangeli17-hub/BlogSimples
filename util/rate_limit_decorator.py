@@ -5,7 +5,7 @@ Decorator para aplicar rate limiting em rotas FastAPI de forma centralizada,
 eliminando código duplicado em múltiplas rotas.
 
 Este módulo fornece um decorator que:
-- Verifica automaticamente o rate limit baseado no IP do cliente
+- Verifica automaticamente o rate limit baseado no IP do autor
 - Exibe mensagem de erro padronizada quando o limite é excedido
 - Registra no log tentativas bloqueadas
 - Redireciona para URL especificada quando bloqueado
@@ -65,7 +65,7 @@ def aplicar_rate_limit(
     """
     Decorator para aplicar rate limiting em rotas FastAPI.
 
-    Este decorator verifica se o cliente excedeu o limite de requisições
+    Este decorator verifica se o autor excedeu o limite de requisições
     e bloqueia automaticamente a requisição se necessário.
 
     Args:
