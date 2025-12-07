@@ -1,0 +1,30 @@
+{% extends "base_privada.html" %}
+{% from "macros/form_fields.html" import field with context %}
+
+{% block titulo %}Cadastrar Categoria{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title mb-4">Nova Categoria</h3>
+                <form method="post" action="/admin/categorias/cadastrar">
+                    <div class="mb-3">
+                        <label class="form-label">Nome</label>
+                        <input type="text" name="nome" class="form-control" required maxlength="50">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descrição</label>
+                        <textarea name="descricao" class="form-control" maxlength="200" rows="4"></textarea>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <a href="/admin/categorias/listar" class="btn btn-secondary me-2">Cancelar</a>
+                        <button class="btn btn-primary" type="submit">Cadastrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
