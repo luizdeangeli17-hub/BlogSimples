@@ -8,7 +8,6 @@ from util.flash_messages import informar_erro
 from util.logger_config import logger
 from repo import artigo_repo, categoria_repo
 
-# Rotas públicas do blog - acessíveis sem autenticação
 router = APIRouter()
 templates_public = criar_templates()
 
