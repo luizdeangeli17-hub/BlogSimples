@@ -118,6 +118,7 @@ except sqlite3.Error as e:
 
 # Definir routers e suas configurações
 # IMPORTANTE: public_router e examples_router devem ser incluídos por último
+# ARTIGOS: Router para gerenciamento de artigos (CRUD completo com suporte a Markdown)
 ROUTERS = [
     (auth_router, ["Autenticação"], "autenticação"),
     (chamados_router, ["Chamados"], "chamados"),
